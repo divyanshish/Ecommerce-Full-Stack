@@ -10,6 +10,7 @@ import service.CategoryService;
 import java.util.ArrayList;
 import java.util.List;
 @RestController
+@RequestMapping("/api/public/categories")
 @RequiredArgsConstructor
 public class CategoryController {
 
@@ -17,23 +18,23 @@ public class CategoryController {
 
 
 
-    @GetMapping("/api/public/categories")
+    @GetMapping
     public ResponseEntity<List<Category>> getAllCategories(){
         return new ResponseEntity<>(categoryService.getAllCategories(), HttpStatus.OK);
     }
 
-    @PostMapping("/api/public/categories")
+    @PostMapping
     public ResponseEntity<String> createCategory(@RequestBody Category category){
         return new ResponseEntity<>(categoryService.createCategory(category),HttpStatus.CREATED);
     }
 
-    @DeleteMapping("api/public/categories/{categoryId}")
+    @DeleteMapping("{categoryId}")
     public ResponseEntity<String> deleteCategoryById(@PathVariable Long categoryId){
         categoryService.deleteCategory(categoryId);
         return new ResponseEntity<>( "Category deleted Successfully",HttpStatus.NOT_FOUND);
     }
 
-    @PutMapping("/api/public/categories/{categoryId}")
+    @PutMapping("{categoryId}")
     public ResponseEntity<String> updateCategory(@RequestBody Category category,
     @PathVariable Long categoryId){
         categoryService.updateCategory(category,categoryId);
