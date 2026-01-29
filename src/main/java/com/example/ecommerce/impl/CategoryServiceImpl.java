@@ -1,5 +1,7 @@
 package com.example.ecommerce.impl;
 
+import com.example.ecommerce.exceptionns.ApiException;
+import com.example.ecommerce.exceptionns.ResourceNotFoundException;
 import com.example.ecommerce.modal.Category;
 import com.example.ecommerce.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,11 +21,21 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
     @Override
     public List<Category> getAllCategories() {
-        return categoryRepository.findAll();
+
+        List<Category> categories = categoryRepository.findAll();
+        if(categories.isEmpty()){
+            throw  new ApiException("No categories add till now");
+
+        }
+        return categories;
     }
 
     @Override
     public String createCategory(Category category) {
+        Category savedCategory = categoryRepository.findByCategoryName(category.getCategoryName());
+        if(savedCategory != null){
+            throw new ApiException("Category with this name" + savedCategory.getCategoryName()+" already exists");
+        }
 
         categoryRepository.save(category);
         return "Categories Added Successfully";
@@ -31,7 +43,8 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void deleteCategory(Long categoryId) {
-        Category category = categoryRepository.findById(categoryId).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"Category doesn't exist"));
+        Category category = categoryRepository.findById(categoryId).orElseThrow(()->new ResourceNotFoundException("category","categoryId",categoryId));
+
 
 //        List<Category> categories = categoryRepository.findAll();
 //        Category category = categories.stream().filter(c-> c.getCategoryId().equals(categoryId)).findFirst().orElse(null);
@@ -44,7 +57,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public Category updateCategory(Category category,Long categoryId) {
         Optional<Category> optionalCategory = categoryRepository.findById(categoryId);
-        Category savedCategory = optionalCategory.orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"Category doesn't exist"));
+        Category savedCategory = optionalCategory.orElseThrow(()->new ResourceNotFoundException("category","categoryId",categoryId));
         savedCategory.setCategoryId(categoryId);
         savedCategory.setCategoryName(category.getCategoryName());
         return categoryRepository.save(savedCategory);
@@ -60,4 +73,5 @@ public class CategoryServiceImpl implements CategoryService {
 //        return null;
 
     }
+
 }
